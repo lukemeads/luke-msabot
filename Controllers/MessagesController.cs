@@ -49,9 +49,9 @@ namespace Bot_Application1
                             {
                                 //reply = activity.CreateReply($"G'day, {name}.");
                                 await connector.Conversations.SendToConversationAsync(await getLogo(activity));
-                                return Request.CreateResponse(HttpStatusCode.OK);
                                 userData.SetProperty<bool>("SentGreeting", true);
                                 await stateClient.BotState.SetUserDataAsync(activity.ChannelId, activity.From.Id, userData);
+                                return Request.CreateResponse(HttpStatusCode.OK);
                             } else
                             {
                                 reply = activity.CreateReply($"You've already greeted me, {name}.");
@@ -66,7 +66,7 @@ namespace Bot_Application1
                             {
                                 requestUser = name;
                             } else if (LUIS.entities.Count == 0) {
-                                reply = activity.CreateReply($"I don't know who you are, sir.");
+                                reply = activity.CreateReply($"I don't know who you're asking about, sir.");
                                 break;
                             } else
                             {
@@ -128,7 +128,7 @@ namespace Bot_Application1
                         case "DeclareSpeaker":
                             userData.SetProperty<string>("UserName", LUIS.entities[0].entity);
                             await stateClient.BotState.SetUserDataAsync(activity.ChannelId, activity.From.Id, userData);
-                            reply = activity.CreateReply($"Okay, I'll call you {name}.");
+                            reply = activity.CreateReply($"Okay, I'll call you {LUIS.entities[0].entity}.");
                             break;
                         default:
                             reply = activity.CreateReply($"Hmm...I'm not getting you, {name}.");
@@ -222,7 +222,7 @@ namespace Bot_Application1
             replyToConversation.Type = "message";
             replyToConversation.Attachments = new List<Attachment>();
             List<CardImage> cardImages = new List<CardImage>();
-            cardImages.Add(new CardImage(url: "https://lh5.googleusercontent.com/ZDsZ-VQigco2FFkrl0xGsZIgyknFQeE0aarAiBMQAwj5ZCCL4tC3xcfP6DYO_jaHmlHtm9tH3es-7i4=w1920-h950"));
+            cardImages.Add(new CardImage(url: "http://oi64.tinypic.com/2gse692.jpg"));
             List<CardAction> cardButtons = new List<CardAction>();
             /*
             CardAction plButton = new CardAction()
@@ -234,7 +234,7 @@ namespace Bot_Application1
             cardButtons.Add(plButton);*/
             ThumbnailCard plCard = new ThumbnailCard()
             {
-                Title = "Best money, best bots",
+                Title = "Best money, Best bots",
                 Subtitle = "Bank with us today",
                 Images = cardImages,
                 Buttons = cardButtons
