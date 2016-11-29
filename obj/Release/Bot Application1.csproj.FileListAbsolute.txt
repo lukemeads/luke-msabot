@@ -37,3 +37,12 @@ C:\Users\meads\onedrive\documents\visual studio 2015\Projects\Bot Application1\B
 C:\Users\meads\onedrive\documents\visual studio 2015\Projects\Bot Application1\Bot Application1\obj\Release\Bot Application1.csprojResolveAssemblyReference.cache
 C:\Users\meads\onedrive\documents\visual studio 2015\Projects\Bot Application1\Bot Application1\obj\Release\Bot Application1.dll
 C:\Users\meads\onedrive\documents\visual studio 2015\Projects\Bot Application1\Bot Application1\obj\Release\Bot Application1.pdb
+C:\Users\meads\OneDrive\Documents\Visual Studio 2015\Projects\Bot Application1\Bot Application1\bin\Microsoft.WindowsAzure.Mobile.dll
+C:\Users\meads\OneDrive\Documents\Visual Studio 2015\Projects\Bot Application1\Bot Application1\bin\Microsoft.WindowsAzure.Mobile.Ext.dll
+C:\Users\meads\OneDrive\Documents\Visual Studio 2015\Projects\Bot Application1\Bot Application1\bin\System.Net.Http.Extensions.dll
+C:\Users\meads\OneDrive\Documents\Visual Studio 2015\Projects\Bot Application1\Bot Application1\bin\System.Net.Http.Primitives.dll
+C:\Users\meads\OneDrive\Documents\Visual Studio 2015\Projects\Bot Application1\Bot Application1\bin\Microsoft.WindowsAzure.Mobile.xml
+C:\Users\meads\OneDrive\Documents\Visual Studio 2015\Projects\Bot Application1\Bot Application1\bin\Microsoft.WindowsAzure.Mobile.Ext.xml
+C:\Users\meads\OneDrive\Documents\Visual Studio 2015\Projects\Bot Application1\Bot Application1\bin\System.Net.Http.Extensions.xml
+C:\Users\meads\OneDrive\Documents\Visual Studio 2015\Projects\Bot Application1\Bot Application1\bin\System.Net.Http.Primitives.xml
+C:\Users\meads\OneDrive\Documents\Visual Studio 2015\Projects\Bot Application1\Bot Application1\obj\Release\Bot Application1.csproj.App.config

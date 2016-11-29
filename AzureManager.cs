@@ -13,12 +13,12 @@ namespace Bot_Application1
 
         private static AzureManager instance;
         private MobileServiceClient client;
-        private IMobileServiceTable<User> userTable;
+        private IMobileServiceTable<Users> userTable;
 
         private AzureManager()
         {
             this.client = new MobileServiceClient("http://luke-msabotdb.azurewebsites.net");
-            this.userTable = this.client.GetTable<User>();
+            this.userTable = this.client.GetTable<Users>();
         }
 
         public MobileServiceClient AzureClient
@@ -39,21 +39,19 @@ namespace Bot_Application1
             }
         }
 
-        public async Task<List<User>> GetUser(string name)
+        public async Task<List<Users>> GetUser(string name)
         {
-            //return await this.userTable.Where(user => user.Name == name).ToListAsync();
-            List<User> thing = await this.userTable.ToListAsync();
-            return thing;
+            return await this.userTable.Where(user => user.Name == name).ToListAsync();
         }
 
-        public async Task AddUser(User user)
+        public async Task AddUser(Users user)
         {
             await this.userTable.InsertAsync(user);
         }
 
-        public async Task UpdateUser(User user)
+        public async Task UpdateUser(Users user)
         {
-            await this.userTable.UpdateAsync(user);
+                await this.userTable.UpdateAsync(user);
         }
 
     }

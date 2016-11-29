@@ -25,9 +25,19 @@ namespace Bot_Application1
             if (activity.Type == ActivityTypes.Message)
             {
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
-                // calculate something for us to return
-                //int length = (activity.Text ?? string.Empty).Length;
+
+                // State service 
+                StateClient stateClient = activity.GetStateClient();
+                BotData userData = await stateClient.BotState.GetUserDataAsync(activity.ChannelId, activity.From.Id);
+
                 Activity reply;
+
+                string name = userData.GetProperty<string>("UserName");
+
+                if (name == null)
+                {
+                    userData.SetProperty<string>("UserName", "sir");
+                }
 
                 RateLUIS LUIS = await GetEntityFromLUIS(activity.Text);
                 if (LUIS.intents.Count() > 0)
@@ -35,33 +45,99 @@ namespace Bot_Application1
                     switch (LUIS.intents[0].intent)
                     {
                         case "Greeting":
-                            reply = activity.CreateReply($"G'day, good sir.");
+                            if (!userData.GetProperty<bool>("SentGreeting"))
+                            {
+                                //reply = activity.CreateReply($"G'day, {name}.");
+                                await connector.Conversations.SendToConversationAsync(await getLogo(activity));
+                                return Request.CreateResponse(HttpStatusCode.OK);
+                                userData.SetProperty<bool>("SentGreeting", true);
+                                await stateClient.BotState.SetUserDataAsync(activity.ChannelId, activity.From.Id, userData);
+                            } else
+                            {
+                                reply = activity.CreateReply($"You've already greeted me, {name}.");
+                            }
                             break;
                         case "GetExchangeRate":
                             reply = activity.CreateReply(await GetRate(LUIS.entities[0].entity.ToUpper()));
                             break;
                         case "GetBalance":
-                            /*List<User> users = await AzureManager.AzureManagerInstance.GetUser(LUIS.entities[0].entity);
-                            string output = "";
-                            foreach(User u in users)
+                            string requestUser = "";
+                            if (LUIS.entities.Count() == 0 && name != "sir")
                             {
-                                output = "The current balance for " + u.Name + " is " + u.Balance + " " + u.Currency +".";
-                            }*/
-                            User user = new User();
-                            user.Balance = 999;
-                            user.Name = "Shama";
-                            user.Currency = "AUD";
-                            await AzureManager.AzureManagerInstance.AddUser(user);
-                            reply = activity.CreateReply($"Done");
+                                requestUser = name;
+                            } else if (LUIS.entities.Count == 0) {
+                                reply = activity.CreateReply($"I don't know who you are, sir.");
+                                break;
+                            } else
+                            {
+                                requestUser = LUIS.entities[0].entity;
+                            }
+                            Users user = new Users();
+                            var usersList = await AzureManager.AzureManagerInstance.GetUser(requestUser);
+                            foreach (Users u in usersList)
+                            {
+                                user.Name = u.Name;
+                                user.Balance = u.Balance;
+                                user.Currency = u.Currency;
+                            }
+
+                            reply = activity.CreateReply($"The current balance for {user.Name} is {user.Balance} {user.Currency}.");
+                            break;
+                        case "CreateAccount":
+                            Users newAccount = new Users()
+                            {
+                                Name = LUIS.entities[2].entity,
+                                Balance = Convert.ToDouble(LUIS.entities[0].entity),
+                                Currency = LUIS.entities[1].entity
+                            };
+                            await AzureManager.AzureManagerInstance.AddUser(newAccount);
+                            reply = activity.CreateReply($"I have created {newAccount.Name} an account, {name}.");
+                            break;
+                        case "WithdrawCash":
+                            if (name == "sir")
+                             {
+                                 reply = activity.CreateReply($"I don't know who you are.");
+                                 break;
+                             }
+                            var userNames = await AzureManager.AzureManagerInstance.GetUser(name);
+                            foreach (Users u in userNames)
+                            {
+                                u.Name = name;
+                                u.Balance = u.Balance - Convert.ToDouble(LUIS.entities[0].entity);
+                                u.Currency = u.Currency;
+                                await AzureManager.AzureManagerInstance.UpdateUser(u);
+                            }
+                            reply = activity.CreateReply($"Okay. You have successfully withdrawn {LUIS.entities[0].entity} cash from your account, {name}.");
+                            break;
+                        case "DepositCash":
+                            if (name == "sir")
+                            {
+                                reply = activity.CreateReply($"I don't know who you are.");
+                                break;
+                            }
+                            var userNames2 = await AzureManager.AzureManagerInstance.GetUser(name);
+                            foreach (Users u in userNames2)
+                            {
+                                u.Name = name;
+                                u.Balance = u.Balance + Convert.ToDouble(LUIS.entities[0].entity);
+                                u.Currency = u.Currency;
+                                await AzureManager.AzureManagerInstance.UpdateUser(u);
+                            }
+                            reply = activity.CreateReply($"Okay. You have successfully deposited {LUIS.entities[0].entity} cash into your account, {name}.");
+                            break;
+                        case "DeclareSpeaker":
+                            userData.SetProperty<string>("UserName", LUIS.entities[0].entity);
+                            await stateClient.BotState.SetUserDataAsync(activity.ChannelId, activity.From.Id, userData);
+                            reply = activity.CreateReply($"Okay, I'll call you {name}.");
                             break;
                         default:
-                            reply = activity.CreateReply($"Hmm...I'm not getting you, sir.");
+                            reply = activity.CreateReply($"Hmm...I'm not getting you, {name}.");
                             break;
-                    }
+                   } 
                 }
                 else
                 {
-                    reply = activity.CreateReply($"Hmm...I'm not getting you, sir.");
+                    reply = activity.CreateReply($"Hmm...I'm not getting you, {name}.");
                 }
 
                 await connector.Conversations.ReplyToActivityAsync(reply);
@@ -137,6 +213,35 @@ namespace Bot_Application1
                 }
             }
             return Data;
+        }
+
+        private static async Task<Activity> getLogo(Activity activity)
+        {
+            Activity replyToConversation = activity.CreateReply("G'day sir, welcome to Contonzo Bank.");
+            replyToConversation.Recipient = activity.From;
+            replyToConversation.Type = "message";
+            replyToConversation.Attachments = new List<Attachment>();
+            List<CardImage> cardImages = new List<CardImage>();
+            cardImages.Add(new CardImage(url: "https://lh5.googleusercontent.com/ZDsZ-VQigco2FFkrl0xGsZIgyknFQeE0aarAiBMQAwj5ZCCL4tC3xcfP6DYO_jaHmlHtm9tH3es-7i4=w1920-h950"));
+            List<CardAction> cardButtons = new List<CardAction>();
+            /*
+            CardAction plButton = new CardAction()
+            {
+                Value = "http://msa.ms",
+                Type = "openUrl",
+                Title = "MSA Website"
+            };
+            cardButtons.Add(plButton);*/
+            ThumbnailCard plCard = new ThumbnailCard()
+            {
+                Title = "Best money, best bots",
+                Subtitle = "Bank with us today",
+                Images = cardImages,
+                Buttons = cardButtons
+            };
+            Attachment plAttachment = plCard.ToAttachment();
+            replyToConversation.Attachments.Add(plAttachment);
+            return replyToConversation;
         }
 
     }

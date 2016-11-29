@@ -6,7 +6,7 @@ using System.Web;
 
 namespace Bot_Application1.Models
 {
-    public class User
+    public class Users
     {
         [JsonProperty(PropertyName = "Id")]
         public string ID { get; set; }

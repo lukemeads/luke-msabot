@@ -143,7 +143,7 @@
     </Compile>
     <Compile Include="Models\RateLUIS.cs" />
     <Compile Include="Models\Rates.cs" />
-    <Compile Include="Models\User.cs" />
+    <Compile Include="Models\Users.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
